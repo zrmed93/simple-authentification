@@ -1,0 +1,48 @@
+version: '3'
+services:
+  mysql:
+    image: mariadb:latest
+    environment:
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: med
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: 1234
+      # MYSQL_ALLOW_EMPTY_PASSWORD: true
+      # MYSQL_RANDOM_ROOT_PASSWORD: true
+      # LOCAL_DB_HOST: host.docker.internal 
+      # LOCAL_DB_PORT: 3306  
+      MYSQL_ROOT_HOST: "%"
+
+
+    ports:
+      - "3307:3306"
+    # command: --binary-mode=1
+    # command: --default-authentication-plugin=mysql_native_password
+
+
+    volumes:
+       - mysql-data:/var/lib/mysql
+    # - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+
+  nestjs-app:
+    build:
+      context: ./backend
+    ports:
+      - "3000:3000"
+    # volumes:
+    #  - ./backend:/backend
+
+    depends_on:
+      - mysql
+
+  react-app:
+    build:
+      context: ./frontend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - nestjs-app
+  
+volumes:
+  mysql-data:
